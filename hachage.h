@@ -15,6 +15,7 @@
 
 
 
+#include <ctype.h>
 #include "./mot.h"
 
 
@@ -27,6 +28,7 @@
 
 
 
+
 typedef mot_t * table_t[HASH_MAX];
 
 
@@ -34,6 +36,15 @@ typedef mot_t * table_t[HASH_MAX];
 
 
 void LectureFichier(char *, enum bool *);
+
+void InsertionChainee (mot_t **, mot_t *);
+
+unsigned int hash_string(const char *);
+
+mot_t ** RechercheEntree(char *, enum bool *, table_t);
+
+void CreationTable(FILE *, table_t, enum bool *, enum bool *);
+
 
 
 

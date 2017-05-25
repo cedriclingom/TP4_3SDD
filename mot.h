@@ -56,6 +56,8 @@ void LectureLigneFichier(FILE *, char *, enum bool *);
 
 mot_t * CreationMot(char *, enum bool *);
 
+mot_t **  RecherchePrec (mot_t **, char *, enum bool *);
+
 
 
 

@@ -158,6 +158,52 @@ mot_t * CreationMot(char * chaine, enum bool * PcodeCreation)
 }
 
 
+/*-------------------------------------------------------------------------------------------------------------------------*/
+/* RechercheMot        Recherche un mot dans la liste chainée des mots.                                                    */
+/*                                                                                                                         */
+/* En entrée:     PpteteListe - Pointeur de pointeur de tête de la liste chainée des mots.                                 */
+/*                    pvaleur - Pointeur sur le mot à rechercher (qui est une chaine de caractères).                       */
+/*                   ptrouver - booleen 1 si le mot est trouvé 0 sinon                                                     */
+/*                                                                                                                         */
+/* En sortie:            prec - Retourne l'adresse du pointeur de tete de liste chainée des mot ou l'adresse de la         */
+/*                              case pointeur de l'élément précédent dans la liste chainée de mots.                        */
+/*                   ptrouver - booleen 1 si le mot est trouvé 0 sinon                                                     */
+/*                                                                                                                         */
+/* Variable(s) locale(s):   pcour - Pointeur sur le mot courante.                                                          */
+/*                          prec  - Pointeur de pointeur de tete de liste chainée des mot ou pointeur sur la case          */
+/*                                  pointeur de l'élément précédent de la liste chainée des mot.                           */
+/*-------------------------------------------------------------------------------------------------------------------------*/
+
+
+mot_t **  RecherchePrec (mot_t ** PpteteListe, char * pvaleur, enum bool * ptrouver)
+{
+
+  mot_t * pcour = *PpteteListe, ** prec = PpteteListe;        
+
+  *ptrouver = faux;
+
+  while   ((pcour != NULL) && (strcmp(pvaleur, pcour->valeur) > 0)) /*Tantque je suis dans la liste et que ma chaine est plus grande*/
+    {
+      
+      prec = &(pcour->suivant);                                    /*On récupère l'adresse de la case pointeur de l'élément courant*/
+      
+      pcour = *prec;                                                 /*Passe au suivant*/
+      
+    }
+
+  if ((pcour != NULL) && (!strcmp(pvaleur, pcour->valeur)))         /*Si on trouve la chaine*/
+    {
+
+      *ptrouver = vrai;
+
+    }
+
+  return prec;
+
+}
+
+
+
 
 
 
