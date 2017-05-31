@@ -40,6 +40,35 @@ void InsertionChainee (mot_t ** adpt, mot_t * pmot)
 }
 
 
+/*-------------------------------------------------------------------------------------------------------*/
+/*                                                                                                       */
+/* SuppressionChainee          Supprime un bloc(Dans notre cas contenant un mot et ça traduction.        */ 
+/*										     			 */ 
+/* En entrée             : adpt  - Pointeur de pointeur de tete de liste chainée ou pointeur sur la case */
+/*                                 pointeur de l'élément précédent de la liste chainée.                  */                  
+/*                                                                                                       */
+/* En sortie             : adpt  - Pointeur de pointeur de tete de liste chainée ou pointeur sur la case */
+/*                                 pointeur de l'élément précédent de la liste chainée.                  */
+/* Variable(s) locale(s) : pcour - Pointeur sur élément à supprimer.                                     */
+/*                                                                                                       */
+/*-------------------------------------------------------------------------------------------------------*/
+
+
+void SuppressionChainee(mot_t ** adpt)
+{
+
+  mot_t * pcour = *adpt;     /*recupère l'adresse de l'élément à supprimer*/
+
+  *adpt = pcour->suivant;    /*pointe sur l'élément après l'élément à supprimer*/
+
+  free(pcour);               /*supprime l'élément*/
+
+  pcour = NULL;
+
+}
+
+
+
 /*-----------------------------------------------------------------------------------------------*/
 /*                                                                                               */
 /* hash_string             Fonction de hachage qui étant donnée une chaine considérer comme la   */
@@ -58,9 +87,12 @@ void InsertionChainee (mot_t ** adpt, mot_t * pmot)
 
 unsigned int hash_string(const char *str)
 { 
-  unsigned int hash = 5381;                /*  fonction de hachage de D.J. Bernstein*/
+
+  static unsigned int hash;                /*  fonction de hachage de D.J. Bernstein*/
   
   const char *s;
+
+  hash = 5381;
   
   for (s = str; *s; s++)
   
@@ -77,29 +109,48 @@ unsigned int hash_string(const char *str)
 /*-------------------------------------------------------------------------------------------------------------------------*/
 /* RechercheEntree              Recherche un mot dans le dictionnaire.                                                     */
 /*                                                                                                                         */
-/* En entrée:     TableHachage- L'adresse de la premiere case dans notre table majeur                                      */
-/*                   pmot     - Pointeur sur le mot à rechercher (qui est une chaine de caractères).                       */
-/*                   ptrouver - booleen 1 si le mot est trouvé 0 sinon                                                     */
+/* En entrée             : hash       - Tableau de pointeurs de tetes de liste chainées.                                   */
+/*                         pvaleur    - Pointeur sur le mot à rechercher (chaine de caractères).                           */
+/*                         ptrouver   - Booleen valant vrai si le mot est trouvé faux sinon.                               */
+/*                         IndiceHash - L'indice de la table majeur dont le contenu de la case est un pointeur sur une     */
+/*                                      liste chainée censé contenir le bloc du mot rechercher.                            */
 /*                                                                                                                         */
-/* En sortie:            prec - Retourne l'adresse du pointeur de tete de liste chainée des mot ou l'adresse de la         */
-/*                              case pointeur de l'élément précédent dans la liste chainée de mots.                        */
-/*                   ptrouver - booleen 1 si le mot est trouvé 0 sinon                                                     */
+/* En sortie             : prec       - Retourne l'adresse du pointeur de tete de liste chainée des mot ou l'adresse de la */
+/*                                      case pointeur de l'élément précédent dans la liste chainée de mots.                */
+/*                         ptrouver   - Booleen valant vrai si le mot est trouvé faux sinon.                               */
 /*                                                                                                                         */
-/* Variable(s) locale(s) :   IndiceHach - l'indice du mot à chercher dans table majeur donné par la fonction hash_string.  */
-/*                          Ppteteliste  - Pointeur de pointeur de tete de liste chainée des mot                           */
+/* Variable(s) locale(s) : Ppteteliste - Pointeur de pointeur de tete de liste chainée des mots.                           */
 /*-------------------------------------------------------------------------------------------------------------------------*/
 
 
 
-mot_t ** RechercheEntree(char * pmot, enum bool * ptrouver, table_t TableHachage)
+mot_t ** RechercheEntree(char * pvaleur, enum bool * ptrouver, table_t hash, unsigned int IndiceHash)
 {
-  unsigned int IndiceHach = hash_string(pmot);
   
-  mot_t ** Ppteteliste = &(TableHachage[IndiceHach]);
-  
-  mot_t ** prec = RecherchePrec(Ppteteliste, pmot, ptrouver);
+  static mot_t ** Ppteteliste, ** prec;
+
+  if(!hash[IndiceHash])                        /*si la structure représentant la table mineur n'existe pas*/
+    {
+
+      hash[IndiceHash] = (mineur_t *)malloc(sizeof(mineur_t));
+
+      if(hash[IndiceHash])                    /*si l'allocation de la structure à marcher*/
+	{
+
+	  hash[IndiceHash]->ptete = NULL;
+	  
+	  hash[IndiceHash]->NbElement = 0;
+
+	}
+
+    }
+
+  Ppteteliste = &(hash[IndiceHash]->ptete);
+
+  prec = RecherchePrec(Ppteteliste, pvaleur, ptrouver);
   
   return prec;
+
 }
 
 
@@ -110,6 +161,8 @@ mot_t ** RechercheEntree(char * pmot, enum bool * ptrouver, table_t TableHachage
 
 void CreationTable(FILE * f, table_t hash, enum bool * PcodeLecture, enum bool * PcodeCreation)
 {
+
+  unsigned int IndiceHash;
 
   enum bool trouver;
 
@@ -137,14 +190,24 @@ void CreationTable(FILE * f, table_t hash, enum bool * PcodeLecture, enum bool *
 	      if(*PcodeCreation)                            /* si la création à reussi*/
 		{
 		  
-		  prec = RechercheEntree(pmot->valeur, &trouver, hash);
+		  IndiceHash = hash_string(pmot->valeur);
+
+		  prec = RechercheEntree(pmot->valeur, &trouver, hash, IndiceHash);
 		  
 		  if(!trouver)
 		    {
 		      
 		      InsertionChainee(prec, pmot);
+
+		      (hash[IndiceHash])->NbElement++;
 		      
 		    }
+		  else
+		    {
+		      
+		      SuppressionChainee(&pmot);
+		  
+		    }    
 		  
 		}
 	      
@@ -163,6 +226,74 @@ void CreationTable(FILE * f, table_t hash, enum bool * PcodeLecture, enum bool *
 }
 
   
+/*-----------------------------------------------------------------------------------------------*/
+/*                                                                                               */
+/* InitialiseTableMajeure  Initialise les cases du tableau à NULL.                               */
+/*                                                                                               */
+/* En entrée             : hash - Tableau de pointeur sur des structures servant de table mineurs*/
+/*                                                                                               */
+/* En sortie             :        Rien en sortie.                                                */
+/*                                                                                               */
+/* Variable(s) locale(s) : i    - Variable de boucle.                                            */
+/*                                                                                               */
+/*-----------------------------------------------------------------------------------------------*/
+
+
+void IntialiseTableMajeure(table_t hash)
+{
+
+  int i;
+  
+  for(i = 0; i < HASH_MAX; ++i)
+    {
+
+      hash[i] = NULL;
+
+    }
+
+}
+
+
+
+void LibererTable(table_t hash)
+{
+
+  int i = 0;
+
+  for(i = 0; i < HASH_MAX; ++i)
+    {
+      
+      LibererSousTable(&hash[i]);
+      
+    }
+  
+}
+
+
+/*-----------------------------------------------------------------------------------------------*/
+/*                                                                                               */
+/* */
+/*                                                                                               */
+/* En entrée             :*/
+/*                                                                                               */
+/* En sortie             :*/
+/*                                                                                               */
+/* Variable(s) locale(s) :*/
+/*                                                                                               */
+/*-----------------------------------------------------------------------------------------------*/
+
+
+void LibererSousTable(mineur_t ** SousTable)
+{
+
+  while(((*SousTable) != NULL) && ((*SousTable)->ptete != NULL))  /*tanqu'il existe une sous table et qu'elle n'est pas libérer*/
+	{
+
+	  SuppressionChainee(&((*SousTable)->ptete));  /*supprime l'élément en tete de la liste chainée courante*/
+
+	}
+}
+
 
 /*-----------------------------------------------------------------------------------------------*/
 /*                                                                                               */
@@ -179,20 +310,20 @@ void CreationTable(FILE * f, table_t hash, enum bool * PcodeLecture, enum bool *
 /* Variable(s) locale(s) : CodeCreation - Pointeur sur une case mémoire contenant vrai si la     */
 /*                                        création de la table c'est bien passée et faux sinon.  */
 /*                         f            - Pointeur sur un fichier.                               */
-/*                         hash         - Pointeur sur la table majeur (liste contigue de        */
-/*                                        pointeur de tete de liste chainée de mot.              */
+/*                         hash         - C'est un tableau (table majeure) de pointeur sur des   */
+/*                                        tables mineurs.                                        */
 /*                                                                                               */
 /*-----------------------------------------------------------------------------------------------*/
 
 
-void LectureFichier(char * NomFichier, enum bool * PcodeLecture)
+void LectureFichier(char * NomFichier, table_t hash, enum bool * PcodeLecture)
 {  
 
   FILE * f = fopen(NomFichier, "r");
 
   enum bool CodeCreation;
 
-  table_t hash;
+  IntialiseTableMajeure(hash);
 
   if(f)                                                      /*si l'ouverture du fichier à réussi*/
     {
@@ -202,7 +333,7 @@ void LectureFichier(char * NomFichier, enum bool * PcodeLecture)
       if(!CodeCreation)                                      /*si erreur dans la création de table*/
 	{
 
-	  /*Liberer la table*/
+	  LibererTable(hash);
 
 	  *PcodeLecture = CodeCreation;
 
@@ -213,13 +344,54 @@ void LectureFichier(char * NomFichier, enum bool * PcodeLecture)
 	  *PcodeLecture = vrai;                               /*la lecture c'est bien passé*/
 
 	}
+      
+      fclose(f);
 
     }
 
 }
       
 
+/*-----------------------------------------------------------------------------------------------*/
+/*                                                                                               */
+/* LongeurMoyenne          Calcule la longueur moyenne des sous-tables.                          */
+/*                                                                                               */
+/* En entrée             : hash - C'est un tableau (table majeure) de pointeur sur des           */
+/*                                tables mineurs.                                                */
+/*                                                                                               */
+/* En sortie             : moy  - Retourne la longueur moyenne des sous-tables.                  */
+/*                                                                                               */
+/* Variable(s) locale(s) : i    - Variable de boucle.                                            */
+/*                         longeur - La somme des toutes les longueurs.                          */
+/*                         moy  - La longueur moyenne des sous-tables.                           */ 
+/*                                                                                               */
+/*-----------------------------------------------------------------------------------------------*/
 
+
+float LongeurMoyenne(table_t hash)
+{
+
+  int i, longeur = 0;
+
+  float moy = 0;
+
+  for(i = 0; i < HASH_MAX; ++i)
+    {
+
+      if(hash[i])                   /*si la table mineur existe*/
+	{
+
+	  longeur += hash[i]->NbElement;
+
+	}
+
+    }
+
+  moy = (longeur * 1.0)/HASH_MAX;
+
+  return moy;
+
+}
 
 /*-----------------------------------------------------------------------------------------------*/
 /*                                                                                               */

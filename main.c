@@ -9,10 +9,27 @@ int main(int argc, char ** argv)
 
   enum bool CodeLecture;
 
+  table_t TableHashage;
+
   if(argc == 2)
     {
 
-      LectureFichier(argv[1], &CodeLecture);
+      LectureFichier(argv[1], TableHashage, &CodeLecture);
+
+      if(CodeLecture)                              /*si la lecture c'est bien passée*/
+	{
+
+	  printf("La longueur moyenne des sous-tables est: %f\n", LongeurMoyenne(TableHashage));
+	  
+	   LibererTable(TableHashage);
+
+	}
+      else
+	{
+	  
+	  printf("Erreur dans la lecture du fichier");
+
+	}
 
     }
   else

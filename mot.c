@@ -100,11 +100,13 @@ void LectureLigneFichier(FILE * f, char * chaine, enum bool * PcodeLecture)
 mot_t * CreationMot(char * chaine, enum bool * PcodeCreation)
 {
 
-  int longeur;
+  static int longeur;
 
   char * copie = (char *)malloc(TAILLECHAINE * sizeof(char));
 
   mot_t * pmot = AllocationMot();
+
+  longeur = 0;
 
   *PcodeCreation = faux;            /*on suppose que la création pourrai mal se passer*/
 
@@ -178,7 +180,11 @@ mot_t * CreationMot(char * chaine, enum bool * PcodeCreation)
 mot_t **  RecherchePrec (mot_t ** PpteteListe, char * pvaleur, enum bool * ptrouver)
 {
 
-  mot_t * pcour = *PpteteListe, ** prec = PpteteListe;        
+  static mot_t * pcour, ** prec; 
+
+  pcour = *PpteteListe;
+
+  prec = PpteteListe;
 
   *ptrouver = faux;
 

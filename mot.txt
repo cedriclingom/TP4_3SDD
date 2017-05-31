@@ -1,3 +1,9 @@
 hello;bonjour
 bye;au revoir
 sorry;pardon
+je;i
+suis;am
+en;in
+dans;in
+classe;class
+
