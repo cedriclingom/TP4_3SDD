@@ -54,6 +54,10 @@ mot_t * AllocationMot();
 
 void LectureLigneFichier(FILE *, char *, enum bool *);
 
+int LongeurMot(char *, char);
+
+void CopieMot(char *, char *, char);
+
 mot_t * CreationMot(char *, enum bool *);
 
 mot_t **  RecherchePrec (mot_t **, char *, enum bool *);

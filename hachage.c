@@ -215,6 +215,8 @@ void CreationTable(FILE * f, table_t hash, enum bool * PcodeLecture, enum bool *
 	  
 	}while(*PcodeLecture && *PcodeCreation);                                   /*tantque je ne suis pas à la fin de la lecture*/ 
 
+      free(chaine);
+
     }
   else
     {
@@ -254,6 +256,62 @@ void IntialiseTableMajeure(table_t hash)
 }
 
 
+/*-----------------------------------------------------------------------------------------------*/
+/*                                                                                               */
+/* LibererSousTable        Libère la sous table qui ici est une liste chainée.                   */
+/*                                                                                               */
+/* En entrée             : SousTable - Pointeur de pointeur sur une stucture de table mineur     */
+/*                                     (liste chainée).                                          */
+/*                                                                                               */
+/* En sortie             :             Rien en sortie.                                           */
+/*                                                                                               */
+/* Variable(s) locale(s) : pmot      - Pointeur sur une structure contenant un mot et sa         */
+/*                                     traduction.                                               */
+/*                                                                                               */
+/*-----------------------------------------------------------------------------------------------*/
+
+
+void LibererSousTable(mineur_t ** SousTable)
+{
+
+  mot_t * pmot = NULL;
+
+  while(((*SousTable) != NULL) && ((*SousTable)->ptete != NULL))  /*tanqu'il existe une sous table et qu'elle n'est pas libérer*/
+	{
+
+	  pmot = (*SousTable)->ptete;                  /*Pointe sur le mot courant*/
+
+	  free(pmot->valeur);
+	  
+	  free(pmot->traduction);
+	  
+	  SuppressionChainee(&((*SousTable)->ptete));  /*supprime l'élément en tete de la liste chainée courante*/
+
+	}
+
+  if((*SousTable) != NULL)
+    {
+
+      free(*SousTable);                               /*libère la structure de table mineur*/
+    }
+
+}
+
+
+/*-----------------------------------------------------------------------------------------------*/
+/*                                                                                               */
+/* LibererTable            Libère les différentes sous table à partir de la table majeur.        */
+/*                                                                                               */
+/* En entrée             : hash - La table majeur qui est un tableau de pointeur sur des         */
+/*                                structure de table mineurs.                                    */
+/*                                                                                               */
+/* En sortie             : hash - La table majeur qui est un tableau de pointeur sur des         */
+/*                                structure de table mineurs.                                    */
+/*                                                                                               */
+/* Variable(s) locale(s) : i    - Variable de boucle.                                            */
+/*                                                                                               */
+/*-----------------------------------------------------------------------------------------------*/
+
 
 void LibererTable(table_t hash)
 {
@@ -267,31 +325,6 @@ void LibererTable(table_t hash)
       
     }
   
-}
-
-
-/*-----------------------------------------------------------------------------------------------*/
-/*                                                                                               */
-/* */
-/*                                                                                               */
-/* En entrée             :*/
-/*                                                                                               */
-/* En sortie             :*/
-/*                                                                                               */
-/* Variable(s) locale(s) :*/
-/*                                                                                               */
-/*-----------------------------------------------------------------------------------------------*/
-
-
-void LibererSousTable(mineur_t ** SousTable)
-{
-
-  while(((*SousTable) != NULL) && ((*SousTable)->ptete != NULL))  /*tanqu'il existe une sous table et qu'elle n'est pas libérer*/
-	{
-
-	  SuppressionChainee(&((*SousTable)->ptete));  /*supprime l'élément en tete de la liste chainée courante*/
-
-	}
 }
 
 

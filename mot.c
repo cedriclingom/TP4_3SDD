@@ -79,6 +79,76 @@ void LectureLigneFichier(FILE * f, char * chaine, enum bool * PcodeLecture)
 
 /*-----------------------------------------------------------------------------------------------*/
 /*                                                                                               */
+/* LongeurMot              Calcule la longueur d'un possédant un délimiteur.                     */
+/*                                                                                               */
+/* En entrée             : chaine     - Pointeur sur une chaine de caractères.                   */
+/*                         delimiteur - Le délimiteur qui est un caractère.                      */
+/*                                                                                               */
+/* En sortie             : longeur    - Retourne la longueur de ce mot délimiter.                */
+/*                                                                                               */
+/* Variable(s) locale(s) : i          - Variable de boucle.                                      */
+/*                                                                                               */
+/*-----------------------------------------------------------------------------------------------*/
+
+
+int LongeurMot(char * chaine, char delimiteur)
+{
+
+  static int i, longeur;
+
+  i = 0;
+  
+  while(chaine[i] != delimiteur)                  /*tantque l'on a pas atteint le délimiteur*/
+    {
+
+      ++i;
+    }
+
+  longeur = i;
+
+  return longeur;
+
+}
+
+
+/*-----------------------------------------------------------------------------------------------*/
+/*                                                                                               */
+/* CopieMot                Copie un mot délimiter d'une source vers une destination.             */
+/*                                                                                               */
+/* En entrée             : src        - Source du mot à copier.                                  */
+/*                         dest       - Destination du mot à copier.                             */
+/*                         delimiteur - Délimiteur qui est un caractère.                         */
+/*                                                                                               */
+/* En sortie             : dest       - Destination du mot à copier.                             */
+/*                                                                                               */
+/* Variable(s) locale(s) : i          - Variable de boucle.                                      */
+/*                                                                                               */
+/*-----------------------------------------------------------------------------------------------*/
+
+
+void CopieMot(char * dest, char * src, char delimiteur)
+{
+
+  static int i;
+  
+  i = 0;
+
+  while(src[i] != delimiteur)       /*tantque l'on a pas atteint le délimiteur*/
+    {
+
+      dest[i] = src[i];
+
+      ++i;
+
+    }
+
+  dest[i] = '\0';
+
+}
+
+
+/*-----------------------------------------------------------------------------------------------*/
+/*                                                                                               */
 /* CreationMot             Créer un cellule devant contenir un mot et sa traduction.             */
 /*                                                                                               */
 /* En entrée             : chaine        - Pointeur sur une chaine de caractères.                */
@@ -99,35 +169,37 @@ void LectureLigneFichier(FILE * f, char * chaine, enum bool * PcodeLecture)
 
 mot_t * CreationMot(char * chaine, enum bool * PcodeCreation)
 {
-
-  static int longeur;
-
-  char * copie = (char *)malloc(TAILLECHAINE * sizeof(char));
-
-  mot_t * pmot = AllocationMot();
-
-  longeur = 0;
-
+  
+ static int longeur1, longeur2;
+ 
+ mot_t * pmot = AllocationMot();
+ 
+  longeur1 = 0;
+  
+  longeur2 = 0;
+  
   *PcodeCreation = faux;            /*on suppose que la création pourrai mal se passer*/
-
-  if(pmot && copie)                          /*si alloué*/
+  
+  if(pmot)                          /*si alloué*/
     {
 
-      strcpy(copie, chaine);
+      longeur1 = LongeurMot(chaine, ';');
 
-      pmot->valeur = strtok(copie, ";");
+      pmot->valeur = (char *)malloc((longeur1 + 1) * sizeof(char));
 
-      copie = NULL;
-
-      if(pmot->valeur)                                   /*si l'extraction du mot à été effectué*/
+      if(pmot->valeur)                                   /*si l'alloctaion à marcher*/
 	{
 
-	  longeur = strlen(pmot->valeur);
+	  CopieMot(pmot->valeur, chaine, ';');           /*je copie le mot*/
 
-	  pmot->traduction = strtok((chaine + longeur + 1), "\n");
+	  longeur2 = strlen(&chaine[longeur1 + 1]);
 
-	  if(pmot->traduction)                           /*si l'extraction de la traduction a été effectué*/
+	  pmot->traduction = (char *)malloc((longeur2 +1) * sizeof(char));
+
+	  if(pmot->traduction)                           /*si l'allocation à marcher*/
 	    {
+
+	      strcpy(pmot->traduction, &chaine[longeur1 + 1]); 
 
 	      *PcodeCreation = vrai;
 
@@ -154,6 +226,8 @@ mot_t * CreationMot(char * chaine, enum bool * PcodeCreation)
 	}
 
     }
+
+  /*printf("%s;%s\n", pmot->valeur, pmot->traduction);*/
 
   return pmot;
 
