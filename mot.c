@@ -170,10 +170,10 @@ void CopieMot(char * dest, char * src, char delimiteur)
 mot_t * CreationMot(char * chaine, enum bool * PcodeCreation)
 {
   
- static int longeur1, longeur2;
+  static int longeur1, longeur2;
  
- mot_t * pmot = AllocationMot();
- 
+  mot_t * pmot = AllocationMot();
+  
   longeur1 = 0;
   
   longeur2 = 0;
@@ -184,7 +184,7 @@ mot_t * CreationMot(char * chaine, enum bool * PcodeCreation)
     {
 
       longeur1 = LongeurMot(chaine, ';');
-
+      
       pmot->valeur = (char *)malloc((longeur1 + 1) * sizeof(char));
 
       if(pmot->valeur)                                   /*si l'alloctaion à marcher*/
@@ -194,12 +194,12 @@ mot_t * CreationMot(char * chaine, enum bool * PcodeCreation)
 
 	  longeur2 = strlen(&chaine[longeur1 + 1]);
 
-	  pmot->traduction = (char *)malloc((longeur2 +1) * sizeof(char));
+	  pmot->traduction = (char *)malloc((longeur2) * sizeof(char));
 
 	  if(pmot->traduction)                           /*si l'allocation à marcher*/
 	    {
 
-	      strcpy(pmot->traduction, &chaine[longeur1 + 1]); 
+	      CopieMot(pmot->traduction, &chaine[longeur1 + 1], '\n');
 
 	      *PcodeCreation = vrai;
 
@@ -226,8 +226,6 @@ mot_t * CreationMot(char * chaine, enum bool * PcodeCreation)
 	}
 
     }
-
-  /*printf("%s;%s\n", pmot->valeur, pmot->traduction);*/
 
   return pmot;
 
@@ -281,6 +279,7 @@ mot_t **  RecherchePrec (mot_t ** PpteteListe, char * pvaleur, enum bool * ptrou
   return prec;
 
 }
+
 
 
 

@@ -22,7 +22,12 @@
 
 
 
+
+
+
 #define TAILLECHAINE 40
+
+
 
 
 
@@ -61,7 +66,6 @@ void CopieMot(char *, char *, char);
 mot_t * CreationMot(char *, enum bool *);
 
 mot_t **  RecherchePrec (mot_t **, char *, enum bool *);
-
 
 
 

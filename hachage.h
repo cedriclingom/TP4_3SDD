@@ -61,6 +61,10 @@ void CreationTable(FILE *, table_t, enum bool *, enum bool *);
 
 float LongeurMoyenne(table_t);
 
+void TraductionMot(char *, table_t);
+
+void TraductionExpression(char *, table_t);
+
 
 
 

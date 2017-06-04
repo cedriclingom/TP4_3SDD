@@ -85,7 +85,7 @@ void SuppressionChainee(mot_t ** adpt)
 /*-----------------------------------------------------------------------------------------------*/
 
 
-unsigned int hash_string(const char *str)
+unsigned int hash_string(const char * str)
 { 
 
   static unsigned int hash;                /*  fonction de hachage de D.J. Bernstein*/
@@ -154,9 +154,29 @@ mot_t ** RechercheEntree(char * pvaleur, enum bool * ptrouver, table_t hash, uns
 }
 
 
-
-
-
+/*-----------------------------------------------------------------------------------------------*/
+/*                                                                                               */
+/* CreationTable           Crée les différents tables minuers avec leurs éléments si nécessaire. */
+/*                                                                                               */
+/* En entrée             : hash          - Un tableau de pointeurs sur des tables mineurs.       */
+/*                         PcodeLecture  - Contient vrai si la lecture du ligne de fichier c'est */
+/*                                         bien passé et faux sinon.                             */
+/*                         PcodeCreation - Contient vrai si la création des éléments des         */
+/*                                         différentes table mineurs se passe bien et faux sinon.*/
+/*                                                                                               */
+/* En sortie             : hash          - Un tableau de pointeurs sur des tables mineurs.       */
+/*                         PcodeLecture  - Contient vrai si la lecture du ligne de fichier c'est */
+/*                                         bien passé et faux sinon.                             */
+/*                         PcodeCreation - Contient vrai si la création des éléments des         */
+/*                                         différentes table mineurs se passe bien et faux sinon.*/
+/*                                                                                               */
+/* Variable(s) locale(s) : IndiceHash    - Indice du tableau r'envoyer par la fonction de hachage*/
+/*                         trouver       - Contient vrai si une entrée existe déjà et faux sinon */
+/*                         chaine        - Pointeur sur une chaine de caractère.                 */
+/*                         prec          - Pointeur de pointeur de tete de liste chainée ou un   */
+/*                                         pointeur de la case pointeur de l'élément precédent.  */
+/*                                                                                               */
+/*-----------------------------------------------------------------------------------------------*/
 
 
 void CreationTable(FILE * f, table_t hash, enum bool * PcodeLecture, enum bool * PcodeCreation)
@@ -280,7 +300,7 @@ void LibererSousTable(mineur_t ** SousTable)
 	{
 
 	  pmot = (*SousTable)->ptete;                  /*Pointe sur le mot courant*/
-
+	  
 	  free(pmot->valeur);
 	  
 	  free(pmot->traduction);
@@ -425,6 +445,52 @@ float LongeurMoyenne(table_t hash)
   return moy;
 
 }
+
+
+void TraductionMot(char * MotATraduire, table_t hash)
+{
+
+  static enum bool trouver;
+
+  static unsigned int IndiceHachage;
+
+  static mot_t ** prec;
+
+  trouver = faux;
+
+  IndiceHachage = hash_string(MotATraduire);
+
+  prec = RechercheEntree(MotATraduire, &trouver, hash, IndiceHachage);
+
+  if(trouver)
+    {
+
+      printf("%s ",(*prec)->traduction);
+
+    }
+
+}
+
+
+
+void TraductionExpression(char * expression, table_t hash)
+{
+
+  char * ch = strtok(expression, " ");
+  
+  while(ch != NULL)
+    {
+
+      TraductionMot(ch, hash);
+
+      ch = strtok(NULL, " ");
+      
+    }
+
+  printf("\n");
+
+}
+
 
 /*-----------------------------------------------------------------------------------------------*/
 /*                                                                                               */
