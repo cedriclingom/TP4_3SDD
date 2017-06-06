@@ -109,7 +109,7 @@ unsigned int hash_string(const char * str)
 /*-------------------------------------------------------------------------------------------------------------------------*/
 /* RechercheEntree              Recherche un mot dans le dictionnaire.                                                     */
 /*                                                                                                                         */
-/* En entrée             : hash       - Tableau de pointeurs de tetes de liste chainées.                                   */
+/* En entrée             : hash       - Tableau de pointeurs de tables mineurs (liste chainées).                           */
 /*                         pvaleur    - Pointeur sur le mot à rechercher (chaine de caractères).                           */
 /*                         ptrouver   - Booleen valant vrai si le mot est trouvé faux sinon.                               */
 /*                         IndiceHash - L'indice de la table majeur dont le contenu de la case est un pointeur sur une     */
@@ -252,7 +252,7 @@ void CreationTable(FILE * f, table_t hash, enum bool * PcodeLecture, enum bool *
 /*                                                                                               */
 /* InitialiseTableMajeure  Initialise les cases du tableau à NULL.                               */
 /*                                                                                               */
-/* En entrée             : hash - Tableau de pointeur sur des structures servant de table mineurs*/
+/* En entrée             : hash - Tableau de pointeurs sur des table mineurs.                    */
 /*                                                                                               */
 /* En sortie             :        Rien en sortie.                                                */
 /*                                                                                               */
@@ -322,11 +322,11 @@ void LibererSousTable(mineur_t ** SousTable)
 /*                                                                                               */
 /* LibererTable            Libère les différentes sous table à partir de la table majeur.        */
 /*                                                                                               */
-/* En entrée             : hash - La table majeur qui est un tableau de pointeur sur des         */
-/*                                structure de table mineurs.                                    */
+/* En entrée             : hash - La table majeur qui est un tableau de pointeur sur des table   */
+/*                                mineurs.                                                       */
 /*                                                                                               */
-/* En sortie             : hash - La table majeur qui est un tableau de pointeur sur des         */
-/*                                structure de table mineurs.                                    */
+/* En sortie             : hash - La table majeur qui est un tableau de pointeur sur des table   */
+/*                                mineurs.                                                       */
 /*                                                                                               */
 /* Variable(s) locale(s) : i    - Variable de boucle.                                            */
 /*                                                                                               */
@@ -447,6 +447,25 @@ float LongeurMoyenne(table_t hash)
 }
 
 
+/*-----------------------------------------------------------------------------------------------*/
+/*                                                                                               */
+/* TraductionMot           Traduit un mot d'une langue à une autre et l'affiche.                 */
+/*                                                                                               */
+/* En entrée             : MotTraduire   - Pointeur sur chaine de caractère qui représente le mot*/
+/*                                         à traduire.                                           */
+/*                         hash          - Tableau de pointeurs sur des tables mineurs.          */
+/*                                                                                               */
+/* En sortie             :                 Rien en sortie.                                       */
+/*                                                                                               */
+/* Variable(s) locale(s) : trouver       - Variable contenant vrai si on a trouver l'entrée      */
+/*                                         recherché et faux sinon.                              */
+/*                         IndiceHachage - C'est un indice du tableau de hashage calculé par la  */
+/*                                         fonction de hashage.                                  */
+/*                         prec          - Pointeur de pointeur sur un mot.                      */
+/*                                                                                               */
+/*-----------------------------------------------------------------------------------------------*/
+
+
 void TraductionMot(char * MotATraduire, table_t hash)
 {
 
@@ -471,6 +490,19 @@ void TraductionMot(char * MotATraduire, table_t hash)
 
 }
 
+
+/*-----------------------------------------------------------------------------------------------*/
+/*                                                                                               */
+/* TraductionExpression    Traduit une expression donnée dans un langage cible.                  */
+/*                                                                                               */
+/* En entrée             : expression - Pointeur sur une chaine de caractères.                   */
+/*                         hash       - Tableau de pointeurs sur des table mineurs.              */
+/*                                                                                               */
+/* En sortie             :              Rien en sortie.                                          */
+/*                                                                                               */
+/* Variable(s) locale(s) : ch         - Pointeur de chaine de caractères.                        */
+/*                                                                                               */
+/*-----------------------------------------------------------------------------------------------*/
 
 
 void TraductionExpression(char * expression, table_t hash)
