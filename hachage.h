@@ -41,13 +41,13 @@ typedef mineur_t * table_t[HASH_MAX];
 
 
 
-void IntialiseTableMajeure(table_t);
+void IntialiseTableMajeure(table_t *);
 
 void LibererSousTable(mineur_t **);
 
-void LibererTable(table_t);
+void LibererTable(table_t *);
 
-void LectureFichier(char *, table_t, enum bool *);
+void LectureFichier(char *, table_t *, enum bool *);
 
 void InsertionChainee (mot_t **, mot_t *);
 
@@ -55,15 +55,15 @@ void SuppressionChainee(mot_t **);
 
 unsigned int hash_string(const char *);
 
-mot_t ** RechercheEntree(char *, enum bool *, table_t, unsigned int);
+mot_t ** RechercheEntree(char *, enum bool *, table_t *, unsigned int);
 
-void CreationTable(FILE *, table_t, enum bool *, enum bool *);
+void CreationTable(FILE *, table_t *, enum bool *, enum bool *);
 
-float LongeurMoyenne(table_t);
+float LongeurMoyenne(table_t *);
 
-void TraductionMot(char *, table_t);
+void TraductionMot(char *, table_t *);
 
-void TraductionExpression(char *, table_t);
+void TraductionExpression(char *, table_t *);
 
 
 

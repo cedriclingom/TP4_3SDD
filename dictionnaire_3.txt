@@ -1,0 +1,7 @@
+bye;au revoir
+sorry;pardon
+je;i
+suis;am
+bye;au revoir
+en;in
+sorry;pardon

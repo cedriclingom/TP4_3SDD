@@ -56,29 +56,31 @@ int main(int argc, char ** argv)
   
   if(argc == 2)
     {
+     
+      IntialiseTableMajeure(&TableHashage);
       
-      LectureFichier(argv[1], TableHashage, &CodeLecture);
-      
-      if(CodeLecture)                                                  /*si la lecture c'est bien passée*/
-	{
-	  
-	  strcpy(phrase, "We often play football on the pitch just behind our school");
-	  
-	  printf("La trauction de la phrase:\n%s\n", phrase);
-	  
-	  TraductionExpression(phrase, TableHashage);
+      LectureFichier(argv[1], &TableHashage, &CodeLecture);
 
-	  printf("La longueur moyenne des sous-tables est: %f\n", LongeurMoyenne(TableHashage));
-	  
-	  LibererTable(TableHashage);
+      if(CodeLecture)
+	{
+
+	  printf("La longueur moyenne des sous-tables est: %f\n", LongeurMoyenne(&TableHashage));
+	 
+	  strcpy(phrase, "We often play football on the pitch just behind our school");
+	      
+	  printf("La trauction de la phrase:\n%s\n", phrase);
+
+	  TraductionExpression(phrase, &TableHashage);
+
+	  LibererTable(&TableHashage);
 
 	}
       else
 	{
-	  
+
 	  printf("Erreur dans la lecture du fichier");
-	  
-	}
+
+	}	
       
     }
   else

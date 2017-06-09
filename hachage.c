@@ -109,7 +109,7 @@ unsigned int hash_string(const char * str)
 /*-------------------------------------------------------------------------------------------------------------------------*/
 /* RechercheEntree              Recherche un mot dans le dictionnaire.                                                     */
 /*                                                                                                                         */
-/* En entrée             : hash       - Tableau de pointeurs de tables mineurs (liste chainées).                           */
+/* En entrée             : hash       - Pointeur de pointeur sur un tableau de pointeurs de tables mineurs (liste chainées)*/
 /*                         pvaleur    - Pointeur sur le mot à rechercher (chaine de caractères).                           */
 /*                         ptrouver   - Booleen valant vrai si le mot est trouvé faux sinon.                               */
 /*                         IndiceHash - L'indice de la table majeur dont le contenu de la case est un pointeur sur une     */
@@ -124,28 +124,28 @@ unsigned int hash_string(const char * str)
 
 
 
-mot_t ** RechercheEntree(char * pvaleur, enum bool * ptrouver, table_t hash, unsigned int IndiceHash)
+mot_t ** RechercheEntree(char * pvaleur, enum bool * ptrouver, table_t * hash, unsigned int IndiceHash)
 {
   
   static mot_t ** Ppteteliste, ** prec;
 
-  if(!hash[IndiceHash])                        /*si la structure représentant la table mineur n'existe pas*/
+  if(!(*hash)[IndiceHash])                        /*si la structure représentant la table mineur n'existe pas*/
     {
 
-      hash[IndiceHash] = (mineur_t *)malloc(sizeof(mineur_t));
+      (*hash)[IndiceHash] = (mineur_t *)malloc(sizeof(mineur_t));
 
-      if(hash[IndiceHash])                    /*si l'allocation de la structure à marcher*/
+      if((*hash)[IndiceHash])                    /*si l'allocation de la structure à marcher*/
 	{
 
-	  hash[IndiceHash]->ptete = NULL;
+	  (*hash)[IndiceHash]->ptete = NULL;
 	  
-	  hash[IndiceHash]->NbElement = 0;
+	  (*hash)[IndiceHash]->NbElement = 0;
 
 	}
 
     }
 
-  Ppteteliste = &(hash[IndiceHash]->ptete);
+  Ppteteliste = &((*hash)[IndiceHash]->ptete);
 
   prec = RecherchePrec(Ppteteliste, pvaleur, ptrouver);
   
@@ -158,13 +158,15 @@ mot_t ** RechercheEntree(char * pvaleur, enum bool * ptrouver, table_t hash, uns
 /*                                                                                               */
 /* CreationTable           Crée les différents tables minuers avec leurs éléments si nécessaire. */
 /*                                                                                               */
-/* En entrée             : hash          - Un tableau de pointeurs sur des tables mineurs.       */
+/* En entrée             : hash          - Pointeur de pointeur sur un tableau de pointeurs sur  */
+/*                                         des tables mineurs.                                   */
 /*                         PcodeLecture  - Contient vrai si la lecture du ligne de fichier c'est */
 /*                                         bien passé et faux sinon.                             */
 /*                         PcodeCreation - Contient vrai si la création des éléments des         */
 /*                                         différentes table mineurs se passe bien et faux sinon.*/
 /*                                                                                               */
-/* En sortie             : hash          - Un tableau de pointeurs sur des tables mineurs.       */
+/* En sortie             : hash          - Pointeur de pointeur sur un tableau de pointeurs sur  */
+/*                                         des tables mineurs.                                   */
 /*                         PcodeLecture  - Contient vrai si la lecture du ligne de fichier c'est */
 /*                                         bien passé et faux sinon.                             */
 /*                         PcodeCreation - Contient vrai si la création des éléments des         */
@@ -179,7 +181,7 @@ mot_t ** RechercheEntree(char * pvaleur, enum bool * ptrouver, table_t hash, uns
 /*-----------------------------------------------------------------------------------------------*/
 
 
-void CreationTable(FILE * f, table_t hash, enum bool * PcodeLecture, enum bool * PcodeCreation)
+void CreationTable(FILE * f, table_t * hash, enum bool * PcodeLecture, enum bool * PcodeCreation)
 {
 
   unsigned int IndiceHash;
@@ -219,12 +221,16 @@ void CreationTable(FILE * f, table_t hash, enum bool * PcodeLecture, enum bool *
 		      
 		      InsertionChainee(prec, pmot);
 
-		      (hash[IndiceHash])->NbElement++;
+		      ((*hash)[IndiceHash])->NbElement++;
 		      
 		    }
 		  else
 		    {
 		      
+		      free(pmot->valeur);
+
+		      free(pmot->traduction);
+
 		      SuppressionChainee(&pmot);
 		  
 		    }    
@@ -252,7 +258,8 @@ void CreationTable(FILE * f, table_t hash, enum bool * PcodeLecture, enum bool *
 /*                                                                                               */
 /* InitialiseTableMajeure  Initialise les cases du tableau à NULL.                               */
 /*                                                                                               */
-/* En entrée             : hash - Tableau de pointeurs sur des table mineurs.                    */
+/* En entrée             : hash - Pointeur de Pointeur sur un tableau de pointeurs sur des table */
+/*                                mineurs.                                                       */
 /*                                                                                               */
 /* En sortie             :        Rien en sortie.                                                */
 /*                                                                                               */
@@ -261,7 +268,7 @@ void CreationTable(FILE * f, table_t hash, enum bool * PcodeLecture, enum bool *
 /*-----------------------------------------------------------------------------------------------*/
 
 
-void IntialiseTableMajeure(table_t hash)
+void IntialiseTableMajeure(table_t * hash)
 {
 
   int i;
@@ -269,7 +276,7 @@ void IntialiseTableMajeure(table_t hash)
   for(i = 0; i < HASH_MAX; ++i)
     {
 
-      hash[i] = NULL;
+      (*hash)[i] = NULL;
 
     }
 
@@ -333,7 +340,7 @@ void LibererSousTable(mineur_t ** SousTable)
 /*-----------------------------------------------------------------------------------------------*/
 
 
-void LibererTable(table_t hash)
+void LibererTable(table_t * hash)
 {
 
   int i = 0;
@@ -341,7 +348,7 @@ void LibererTable(table_t hash)
   for(i = 0; i < HASH_MAX; ++i)
     {
       
-      LibererSousTable(&hash[i]);
+      LibererSousTable(&(*hash)[i]);
       
     }
   
@@ -354,6 +361,8 @@ void LibererTable(table_t hash)
 /*                         d'insérer chaque ligne du fichier dans la sous table apropriée.       */
 /*                                                                                               */
 /* En entrée             : NomFichier   - Pointeur sur chaine de caractères.                     */
+/*                         Pointeur de pointeur sur un tableau (table majeure) de                */
+/*                                        pointeur sur des tables mineurs.                       */
 /*                         PcodeLecture - Pointeur sur une case mémoire contenant vrai si la     */
 /*                                        lecture c'est bien passée et faux sinon.               */
 /*                                                                                               */
@@ -363,20 +372,18 @@ void LibererTable(table_t hash)
 /* Variable(s) locale(s) : CodeCreation - Pointeur sur une case mémoire contenant vrai si la     */
 /*                                        création de la table c'est bien passée et faux sinon.  */
 /*                         f            - Pointeur sur un fichier.                               */
-/*                         hash         - C'est un tableau (table majeure) de pointeur sur des   */
-/*                                        tables mineurs.                                        */
+/*                         hash         - Pointeur de pointeur sur un tableau (table majeure) de */
+/*                                        pointeur sur des tables mineurs.                       */
 /*                                                                                               */
 /*-----------------------------------------------------------------------------------------------*/
 
 
-void LectureFichier(char * NomFichier, table_t hash, enum bool * PcodeLecture)
+void LectureFichier(char * NomFichier, table_t * hash, enum bool * PcodeLecture)
 {  
 
   FILE * f = fopen(NomFichier, "r");
 
   enum bool CodeCreation;
-
-  IntialiseTableMajeure(hash);
 
   if(f)                                                      /*si l'ouverture du fichier à réussi*/
     {
@@ -409,8 +416,8 @@ void LectureFichier(char * NomFichier, table_t hash, enum bool * PcodeLecture)
 /*                                                                                               */
 /* LongeurMoyenne          Calcule la longueur moyenne des sous-tables.                          */
 /*                                                                                               */
-/* En entrée             : hash - C'est un tableau (table majeure) de pointeur sur des           */
-/*                                tables mineurs.                                                */
+/* En entrée             : hash - Pointeur de pointeur sur un tableau (table majeure) de pointeur*/
+/*                                sur des tables mineurs.                                        */
 /*                                                                                               */
 /* En sortie             : moy  - Retourne la longueur moyenne des sous-tables.                  */
 /*                                                                                               */
@@ -421,7 +428,7 @@ void LectureFichier(char * NomFichier, table_t hash, enum bool * PcodeLecture)
 /*-----------------------------------------------------------------------------------------------*/
 
 
-float LongeurMoyenne(table_t hash)
+float LongeurMoyenne(table_t * hash)
 {
 
   int i, longeur = 0;
@@ -431,10 +438,10 @@ float LongeurMoyenne(table_t hash)
   for(i = 0; i < HASH_MAX; ++i)
     {
 
-      if(hash[i])                   /*si la table mineur existe*/
+      if((*hash)[i])                   /*si la table mineur existe*/
 	{
 
-	  longeur += hash[i]->NbElement;
+	  longeur += (*hash)[i]->NbElement;
 
 	}
 
@@ -453,7 +460,8 @@ float LongeurMoyenne(table_t hash)
 /*                                                                                               */
 /* En entrée             : MotTraduire   - Pointeur sur chaine de caractère qui représente le mot*/
 /*                                         à traduire.                                           */
-/*                         hash          - Tableau de pointeurs sur des tables mineurs.          */
+/*                         hash          - Pointeur de pointeur sur un tableau (table majeure) de*/
+/*                                         pointeur sur des tables mineurs.                      */
 /*                                                                                               */
 /* En sortie             :                 Rien en sortie.                                       */
 /*                                                                                               */
@@ -466,7 +474,7 @@ float LongeurMoyenne(table_t hash)
 /*-----------------------------------------------------------------------------------------------*/
 
 
-void TraductionMot(char * MotATraduire, table_t hash)
+void TraductionMot(char * MotATraduire, table_t * hash)
 {
 
   static enum bool trouver;
@@ -487,6 +495,12 @@ void TraductionMot(char * MotATraduire, table_t hash)
       printf("%s ",(*prec)->traduction);
 
     }
+  else
+    {
+      
+      printf("%s ", MotATraduire);
+
+    }
 
 }
 
@@ -496,7 +510,8 @@ void TraductionMot(char * MotATraduire, table_t hash)
 /* TraductionExpression    Traduit une expression donnée dans un langage cible.                  */
 /*                                                                                               */
 /* En entrée             : expression - Pointeur sur une chaine de caractères.                   */
-/*                         hash       - Tableau de pointeurs sur des table mineurs.              */
+/*                         hash       - Pointeur de pointeur sur un tableau (table majeure) de   */
+/*                                      pointeur sur des tables mineurs.                         */
 /*                                                                                               */
 /* En sortie             :              Rien en sortie.                                          */
 /*                                                                                               */
@@ -505,7 +520,7 @@ void TraductionMot(char * MotATraduire, table_t hash)
 /*-----------------------------------------------------------------------------------------------*/
 
 
-void TraductionExpression(char * expression, table_t hash)
+void TraductionExpression(char * expression, table_t * hash)
 {
 
   char * ch = strtok(expression, " ");
