@@ -40,9 +40,6 @@ main: $(OBJ)
 
 #Règle de nettoyage
 
-.PHONY: clean mrpropre
-
-
 clean:
 	rm $(OBJ)
 
